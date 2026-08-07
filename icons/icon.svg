@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" fill="#2e7d32" rx="32"/>
-  <!-- Golf flag -->
-  <path d="M60 40 L60 150 M60 40 L120 60 L60 80" fill="#ffffff" stroke="#ffffff" stroke-width="8" stroke-linejoin="round"/>
-  <!-- Football pattern on ball -->
-  <circle cx="130" cy="130" r="35" fill="#ffffff" stroke="#1b5e20" stroke-width="3"/>
-  <path d="M130 95 L115 115 L120 140 L140 140 L145 115 Z" fill="#1b5e20"/>
-</svg>

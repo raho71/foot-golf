@@ -10,6 +10,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/usp-192.png">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -17,7 +18,7 @@
         <header id="header">
             <button id="btn-back" class="header-btn hidden" aria-label="Retour">←</button>
             <div class="header-title">
-                <img src="icons/usp.jpg" alt="Logo" class="header-logo">
+                <img src="icons/usp-192.png" alt="Logo" class="header-logo">
                 <h1 id="page-title">Foot Golf</h1>
             </div>
             <div class="header-spacer"></div>
@@ -42,6 +43,9 @@
                     </button>
                     <button id="btn-players" class="btn btn-secondary btn-large">
                         👥 Stats joueurs
+                    </button>
+                    <button id="btn-records" class="btn btn-secondary btn-large">
+                        🏅 Records
                     </button>
                     <button id="btn-settings" class="btn btn-secondary btn-large">
                         ⚙️ Paramètres
@@ -135,6 +139,9 @@
                             <tfoot id="game-detail-footer"></tfoot>
                         </table>
                     </div>
+                    <div class="form-actions">
+                        <button id="btn-export-png" class="btn btn-primary btn-large">📷 Exporter en image</button>
+                    </div>
                 </div>
             </section>
 
@@ -149,6 +156,31 @@
                     <h2 id="player-detail-name"></h2>
                     <div id="player-stats-summary" class="stats-summary"></div>
                     <div id="player-games-list" class="list-container"></div>
+                </div>
+            </section>
+
+            <!-- Records Screen (course selection) -->
+            <section id="screen-records" class="screen">
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="select-records-course">Choisir un parcours</label>
+                        <select id="select-records-course">
+                            <option value="">-- Sélectionner --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="select-records-player">Filtrer par joueur (optionnel)</label>
+                        <select id="select-records-player">
+                            <option value="">-- Tous les joueurs --</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="records-container" class="hidden">
+                    <h3 class="records-section-title">🏆 Classement meilleurs scores</h3>
+                    <div id="records-ranking" class="records-list"></div>
+                    
+                    <h3 class="records-section-title">🏅 Records par trou</h3>
+                    <div id="records-by-hole" class="records-list"></div>
                 </div>
             </section>
 
@@ -171,7 +203,7 @@
                 </div>
             </section>
         </main>
-        <div id="app-version">v2026-08-07-16442</div>
+        <div id="app-version">v2026-08-07-17509</div>
     </div>
 
     <script src="js/storage.js"></script>

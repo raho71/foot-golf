@@ -661,3 +661,64 @@ html, body {
     color: var(--text-secondary);
     opacity: 0.6;
 }
+
+/* ==================== */
+/* Records Screen       */
+/* ==================== */
+.records-section-title {
+    color: var(--primary);
+    margin: 20px 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary);
+}
+
+.records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.record-item {
+    background-color: var(--surface);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.record-item-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.record-hole {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.record-player {
+    font-weight: 500;
+}
+
+.record-date {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.record-score {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.record-rank {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 30px;
+}
+
+.rank-1 { color: gold; }
+.rank-2 { color: silver; }
+.rank-3 { color: #cd7f32; }

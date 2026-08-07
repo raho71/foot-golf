@@ -77,6 +77,7 @@ const App = (function() {
             'game-detail': 'Détail partie',
             'players': 'Joueurs',
             'player-detail': 'Stats joueur',
+            'records': 'Records',
             'settings': 'Paramètres'
         };
 
@@ -100,12 +101,17 @@ const App = (function() {
         document.getElementById('btn-courses').addEventListener('click', () => showCoursesScreen());
         document.getElementById('btn-history').addEventListener('click', () => showHistoryScreen());
         document.getElementById('btn-players').addEventListener('click', () => showPlayersScreen());
+        document.getElementById('btn-records').addEventListener('click', () => showRecordsScreen());
         document.getElementById('btn-settings').addEventListener('click', () => showScreen('settings'));
 
         // Settings
         document.getElementById('btn-export').addEventListener('click', exportData);
         document.getElementById('btn-import').addEventListener('click', () => document.getElementById('import-file').click());
         document.getElementById('import-file').addEventListener('change', importData);
+
+        // Records
+        document.getElementById('select-records-course').addEventListener('change', onRecordsFilterChange);
+        document.getElementById('select-records-player').addEventListener('change', onRecordsFilterChange);
 
         // Course management
         document.getElementById('btn-add-course').addEventListener('click', () => showCourseEditScreen(null));
@@ -693,7 +699,35 @@ const App = (function() {
 
         $footer.innerHTML = '';
 
+        // Event listener pour export PNG
+        document.getElementById('btn-export-png').onclick = () => exportGameAsPng(game);
+
         showScreen('game-detail');
+    }
+
+    async function exportGameAsPng(game) {
+        const container = document.getElementById('game-detail-container');
+        
+        try {
+            const canvas = await html2canvas(container, {
+                backgroundColor: '#ffffff',
+                scale: 2, // Meilleure qualité
+                logging: false
+            });
+            
+            // Convertir en blob et télécharger
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const dateStr = new Date(game.date).toISOString().slice(0, 10);
+                a.href = url;
+                a.download = `footgolf-${game.courseName}-${dateStr}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        } catch (error) {
+            alert('Erreur lors de l\'export : ' + error.message);
+        }
     }
 
     // ==================== PLAYERS ====================
@@ -836,6 +870,193 @@ const App = (function() {
         }
 
         showScreen('player-detail');
+    }
+
+    // ==================== RECORDS ====================
+    async function showRecordsScreen() {
+        const courses = await Storage.Courses.getAll();
+        const players = await Storage.Games.getAllPlayers();
+        const $selectCourse = document.getElementById('select-records-course');
+        const $selectPlayer = document.getElementById('select-records-player');
+        const $container = document.getElementById('records-container');
+
+        $selectCourse.innerHTML = '<option value="">-- Sélectionner --</option>' +
+            courses.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+        
+        $selectPlayer.innerHTML = '<option value="">-- Tous les joueurs --</option>' +
+            players.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join('');
+        
+        $container.classList.add('hidden');
+        showScreen('records');
+    }
+
+    async function onRecordsFilterChange() {
+        const courseId = document.getElementById('select-records-course').value;
+        const playerName = document.getElementById('select-records-player').value;
+        await showRecordsForCourse(courseId, playerName);
+    }
+
+    async function showRecordsForCourse(courseId, playerFilter = '') {
+        const $container = document.getElementById('records-container');
+        const $byHole = document.getElementById('records-by-hole');
+        const $ranking = document.getElementById('records-ranking');
+
+        if (!courseId) {
+            $container.classList.add('hidden');
+            return;
+        }
+
+        const course = await Storage.Courses.getById(courseId);
+        const allGames = await Storage.Games.getFinished();
+        const games = allGames.filter(g => g.courseId === courseId);
+
+        if (games.length === 0) {
+            $ranking.innerHTML = '<div class="list-empty">Aucune partie sur ce parcours.</div>';
+            $byHole.innerHTML = '';
+            $container.classList.remove('hidden');
+            return;
+        }
+
+        // Filtrer par joueur si sélectionné
+        const filteredGames = playerFilter 
+            ? games.filter(g => g.players.includes(playerFilter))
+            : games;
+
+        if (filteredGames.length === 0) {
+            $ranking.innerHTML = '<div class="list-empty">Aucune partie pour ce joueur sur ce parcours.</div>';
+            $byHole.innerHTML = '';
+            $container.classList.remove('hidden');
+            return;
+        }
+
+        // Classement meilleurs scores totaux
+        const allScores = [];
+        filteredGames.forEach(game => {
+            const playersToInclude = playerFilter ? [playerFilter] : game.players;
+            playersToInclude.forEach(player => {
+                if (game.scores[player]) {
+                    const total = game.scores[player].reduce((sum, s) => sum + (s ?? 0), 0);
+                    allScores.push({
+                        player,
+                        total,
+                        date: game.date
+                    });
+                }
+            });
+        });
+
+        allScores.sort((a, b) => a.total - b.total || new Date(b.date) - new Date(a.date));
+        const top10 = allScores.slice(0, 10);
+
+        // Calcul des rangs avec égalités
+        let currentRank = 1;
+        let previousTotal = null;
+        const rankedScores = top10.map((entry, index) => {
+            if (previousTotal !== null && entry.total > previousTotal) {
+                currentRank = index + 1;
+            }
+            previousTotal = entry.total;
+            return { ...entry, rank: currentRank };
+        });
+
+        $ranking.innerHTML = rankedScores.map(entry => {
+            const date = new Date(entry.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+            const rankClass = entry.rank <= 3 ? `rank-${entry.rank}` : '';
+            const medal = entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `${entry.rank}.`;
+
+            return `
+                <div class="record-item">
+                    <span class="record-rank ${rankClass}">${medal}</span>
+                    <div class="record-item-left">
+                        <span class="record-player">${escapeHtml(entry.player)}</span>
+                        <span class="record-date">${date}</span>
+                    </div>
+                    <span class="record-score ${getScoreClass(entry.total)}">${formatScore(entry.total)}</span>
+                </div>
+            `;
+        }).join('');
+
+        // Records par trou
+        const holeRecords = [];
+        for (let i = 0; i < course.holes.length; i++) {
+            const hole = course.holes[i];
+            // Map: player -> { bestScore, latestDate }
+            const playerBestByHole = new Map();
+
+            filteredGames.forEach(game => {
+                const playersToInclude = playerFilter ? [playerFilter] : game.players;
+                playersToInclude.forEach(player => {
+                    if (game.scores[player]) {
+                        const score = game.scores[player][i];
+                        if (score !== null) {
+                            const existing = playerBestByHole.get(player);
+                            if (!existing || score < existing.bestScore || 
+                                (score === existing.bestScore && new Date(game.date) > new Date(existing.latestDate))) {
+                                playerBestByHole.set(player, { 
+                                    bestScore: existing && score > existing.bestScore ? existing.bestScore : score,
+                                    latestDate: (!existing || score <= existing.bestScore) ? game.date : existing.latestDate
+                                });
+                                // Correction: garder le meilleur score et mettre à jour la date si même score
+                                if (existing && score === existing.bestScore) {
+                                    playerBestByHole.set(player, { bestScore: score, latestDate: game.date });
+                                } else if (!existing || score < existing.bestScore) {
+                                    playerBestByHole.set(player, { bestScore: score, latestDate: game.date });
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Trouver le meilleur score global pour ce trou
+            let bestScore = null;
+            let bestPlayers = [];
+            playerBestByHole.forEach((data, player) => {
+                if (bestScore === null || data.bestScore < bestScore) {
+                    bestScore = data.bestScore;
+                    bestPlayers = [{ player, date: data.latestDate }];
+                } else if (data.bestScore === bestScore) {
+                    bestPlayers.push({ player, date: data.latestDate });
+                }
+            });
+
+            holeRecords.push({
+                hole: hole.number,
+                par: hole.par,
+                bestScore,
+                bestPlayers
+            });
+        }
+
+        $byHole.innerHTML = holeRecords.map(record => {
+            if (record.bestScore === null) {
+                return `
+                    <div class="record-item">
+                        <div class="record-item-left">
+                            <span class="record-hole">Trou ${record.hole} (Par ${record.par})</span>
+                            <span class="record-date">Aucun record</span>
+                        </div>
+                        <span class="record-score">-</span>
+                    </div>
+                `;
+            }
+            const playersStr = record.bestPlayers.map(p => {
+                const date = new Date(p.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                return `${escapeHtml(p.player)} (${date})`;
+            }).join(', ');
+
+            return `
+                <div class="record-item">
+                    <div class="record-item-left">
+                        <span class="record-hole">Trou ${record.hole} (Par ${record.par})</span>
+                        <span class="record-date">${playersStr}</span>
+                    </div>
+                    <span class="record-score ${getScoreClass(record.bestScore)}">${formatScore(record.bestScore)}</span>
+                </div>
+            `;
+        }).join('');
+
+        $container.classList.remove('hidden');
     }
 
     // ==================== HELPERS ====================
