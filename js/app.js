@@ -618,21 +618,35 @@ const App = (function() {
         const $body = document.getElementById('game-detail-body');
         const $footer = document.getElementById('game-detail-footer');
 
-        const date = new Date(game.date).toLocaleDateString('fr-FR', {
+        const dateFormatted = new Date(game.date).toLocaleDateString('fr-FR', {
             weekday: 'long',
             day: 'numeric',
             month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+            year: 'numeric'
         });
+
+        // Date en format ISO pour l'input date
+        const dateISO = new Date(game.date).toISOString().slice(0, 10);
 
         // Info section
         $info.innerHTML = `
             <p><strong>Parcours:</strong> ${escapeHtml(game.courseName)}</p>
-            <p><strong>Date:</strong> ${date}</p>
+            <p><strong>Date:</strong> ${dateFormatted} <button id="btn-change-date" class="btn-inline" data-id="${game.id}" data-date="${dateISO}">✏️</button></p>
             <p><strong>Joueurs:</strong> ${game.players.map(escapeHtml).join(', ')}</p>
         `;
+
+        // Event listener pour changer la date
+        document.getElementById('btn-change-date').addEventListener('click', async (e) => {
+            const currentDate = e.target.dataset.date;
+            const newDate = prompt('Nouvelle date (AAAA-MM-JJ) :', currentDate);
+            if (newDate && /^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+                game.date = new Date(newDate + 'T12:00:00').toISOString();
+                await Storage.Games.save(game);
+                showGameDetailScreen(game.id);
+            } else if (newDate) {
+                alert('Format invalide. Utilisez AAAA-MM-JJ (ex: 2026-08-07)');
+            }
+        });
 
         const holes = game.courseHoles;
         const players = game.players;
