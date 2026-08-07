@@ -649,3 +649,15 @@ html, body {
     font-size: 0.9rem;
     color: #856404;
 }
+
+/* ==================== */
+/* App Version          */
+/* ==================== */
+#app-version {
+    position: fixed;
+    bottom: 8px;
+    right: 12px;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    opacity: 0.6;
+}

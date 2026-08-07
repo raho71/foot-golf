@@ -171,6 +171,7 @@
                 </div>
             </section>
         </main>
+        <div id="app-version"></div>
     </div>
 
     <script src="js/storage.js"></script>
@@ -183,6 +184,16 @@
                 .then(reg => console.log('Service Worker registered'))
                 .catch(err => console.log('Service Worker registration failed:', err));
         }
+
+        // Afficher la version depuis le Service Worker
+        fetch('sw.js')
+            .then(r => r.text())
+            .then(text => {
+                const match = text.match(/CACHE_VERSION = '(.*)'/);
+                if (match) {
+                    document.getElementById('app-version').textContent = 'v' + match[1];
+                }
+            });
     </script>
 </body>
 </html>
