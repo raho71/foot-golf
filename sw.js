@@ -1,4 +1,4 @@
-const CACHE_NAME = 'foot-golf-v1';
+const CACHE_NAME = 'foot-golf-v2';
 const ASSETS = [
     '/foot-golf/',
     '/foot-golf/index.html',
