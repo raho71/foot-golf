@@ -1,0 +1,642 @@
+/* ==================== */
+/* Base Styles & Reset  */
+/* ==================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --primary: #2e7d32;
+    --primary-dark: #1b5e20;
+    --primary-light: #4caf50;
+    --secondary: #455a64;
+    --danger: #c62828;
+    --background: #f5f5f5;
+    --surface: #ffffff;
+    --text: #212121;
+    --text-secondary: #757575;
+    --border: #e0e0e0;
+    --positive: #2e7d32;
+    --negative: #c62828;
+    --neutral: #455a64;
+    --header-height: 56px;
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: var(--safe-area-top);
+    padding-bottom: var(--safe-area-bottom);
+}
+
+/* ==================== */
+/* Header               */
+/* ==================== */
+#header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    padding: 0 16px;
+    background-color: var(--primary);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
+}
+
+#header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.header-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: contain;
+    background: white;
+}
+
+.header-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-btn:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.header-spacer {
+    width: 44px;
+}
+
+/* ==================== */
+/* Main Content         */
+/* ==================== */
+#main-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.screen {
+    display: none;
+    padding: 16px;
+    min-height: 100%;
+}
+
+.screen.active {
+    display: block;
+}
+
+/* ==================== */
+/* Buttons              */
+/* ==================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    text-decoration: none;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:active {
+    background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--secondary);
+    color: white;
+}
+
+.btn-secondary:active {
+    background-color: #37474f;
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    color: white;
+}
+
+.btn-large {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 1.1rem;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+.btn-floating {
+    position: fixed;
+    bottom: calc(24px + var(--safe-area-bottom));
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ==================== */
+/* Home Screen          */
+/* ==================== */
+.home-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 400px;
+    margin: 0 auto;
+    padding-top: 24px;
+}
+
+/* ==================== */
+/* Lists                */
+/* ==================== */
+.list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.list-item {
+    background-color: var(--surface);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.list-item:active {
+    transform: scale(0.99);
+}
+
+.list-item.history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.list-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-delete-game {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    padding: 8px;
+    cursor: pointer;
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+.btn-delete-game:active {
+    opacity: 1;
+}
+
+.list-item-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.list-item-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.list-item-players {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.list-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 40px 20px;
+}
+
+/* ==================== */
+/* Forms                */
+/* ==================== */
+.form-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: var(--surface);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+/* ==================== */
+/* Holes List (Course)  */
+/* ==================== */
+.holes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.hole-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: var(--surface);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.hole-row span {
+    font-weight: 500;
+    min-width: 60px;
+}
+
+.hole-row input {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    text-align: center;
+}
+
+.hole-row button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--danger);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+/* ==================== */
+/* Players Input        */
+/* ==================== */
+.players-input-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.player-input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.player-input-row input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.player-input-row button {
+    background: none;
+    border: none;
+    color: var(--danger);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+/* ==================== */
+/* Scorecard            */
+/* ==================== */
+#scorecard-container,
+#game-detail-scorecard-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+    background-color: var(--surface);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#scorecard,
+#game-detail-scorecard {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+#scorecard th,
+#scorecard td,
+#game-detail-scorecard th,
+#game-detail-scorecard td {
+    padding: 8px 6px;
+    text-align: center;
+    border: 1px solid var(--border);
+    min-width: 36px;
+}
+
+#scorecard th,
+#game-detail-scorecard th {
+    background-color: var(--primary);
+    color: white;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+#scorecard th:first-child,
+#game-detail-scorecard th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}
+
+#scorecard td:first-child,
+#game-detail-scorecard td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: var(--surface);
+    font-weight: 600;
+    text-align: left;
+    z-index: 1;
+}
+
+#scorecard tfoot td,
+#game-detail-scorecard tfoot td {
+    font-weight: 700;
+    background-color: #f0f0f0;
+}
+
+.score-positive {
+    color: var(--negative);
+}
+
+.score-negative {
+    color: var(--positive);
+}
+
+.score-zero {
+    color: var(--neutral);
+}
+
+.score-cell {
+    cursor: pointer;
+}
+
+.score-cell:active {
+    background-color: var(--border);
+}
+
+.current-hole-cell {
+    background-color: rgba(46, 125, 50, 0.1);
+}
+
+/* ==================== */
+/* Current Hole Panel   */
+/* ==================== */
+.current-hole-panel {
+    background-color: var(--surface);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.current-hole-panel h3 {
+    text-align: center;
+    margin-bottom: 16px;
+    color: var(--primary);
+}
+
+.score-inputs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.score-input-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.score-input-row .player-name {
+    font-weight: 500;
+    flex: 1;
+}
+
+.score-input-row .score-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.score-controls button {
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    background-color: var(--border);
+    color: var(--text);
+}
+
+.score-controls button:active {
+    background-color: var(--secondary);
+    color: white;
+}
+
+.score-controls .score-value {
+    width: 50px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.hole-navigation {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.hole-navigation button {
+    flex: 1;
+}
+
+/* ==================== */
+/* Game Info            */
+/* ==================== */
+.game-info {
+    background-color: var(--surface);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.game-info p {
+    margin-bottom: 8px;
+}
+
+.game-info strong {
+    color: var(--primary);
+}
+
+/* ==================== */
+/* Stats Summary        */
+/* ==================== */
+.stats-summary {
+    background-color: var(--surface);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stats-summary p {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.stats-summary p:last-child {
+    border-bottom: none;
+}
+
+.stats-summary strong {
+    color: var(--primary);
+}
+
+/* ==================== */
+/* Utility Classes      */
+/* ==================== */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-16 {
+    margin-top: 16px;
+}
+
+.mb-16 {
+    margin-bottom: 16px;
+}
+
+/* ==================== */
+/* Settings Screen      */
+/* ==================== */
+.settings-info {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.settings-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.9rem;
+    color: #856404;
+}

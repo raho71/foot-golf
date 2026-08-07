@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Génération d'icônes Foot Golf</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        canvas { border: 1px solid #ccc; margin: 10px; display: block; }
+        .instructions { background: #f5f5f5; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        h2 { margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <h1>Génération des icônes Foot Golf</h1>
+    <p>Cliquez droit sur chaque canvas et "Enregistrer l'image sous" pour sauvegarder les icônes.</p>
+    
+    <h2>icon-192.png</h2>
+    <canvas id="icon192" width="192" height="192"></canvas>
+    
+    <h2>icon-512.png</h2>
+    <canvas id="icon512" width="512" height="512"></canvas>
+
+    <div class="instructions">
+        <h3>Instructions</h3>
+        <ol>
+            <li>Attendez que les images soient chargées</li>
+            <li>Clic droit sur chaque image → "Enregistrer l'image sous"</li>
+            <li>Sauvegardez en tant que <code>icon-192.png</code> et <code>icon-512.png</code> dans ce même dossier <code>icons/</code></li>
+        </ol>
+    </div>
+
+    <script>
+        const img = new Image();
+        img.onload = function() {
+            drawIcon(document.getElementById('icon192'), 192);
+            drawIcon(document.getElementById('icon512'), 512);
+        };
+        img.src = 'usp.jpg';
+
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Fond blanc
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Calculer la taille pour centrer l'image (garder les proportions)
+            const imgRatio = img.width / img.height;
+            let drawWidth, drawHeight, offsetX, offsetY;
+            
+            // L'image est plus large que haute, on ajuste
+            if (imgRatio > 1) {
+                drawWidth = size * 0.9;
+                drawHeight = drawWidth / imgRatio;
+            } else {
+                drawHeight = size * 0.9;
+                drawWidth = drawHeight * imgRatio;
+            }
+            
+            offsetX = (size - drawWidth) / 2;
+            offsetY = (size - drawHeight) / 2;
+            
+            // Dessiner l'image centrée
+            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        }
+    </script>
+</body>
+</html>

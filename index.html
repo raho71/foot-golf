@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2e7d32">
+    <title>Foot Golf</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/usp-192.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header id="header">
+            <button id="btn-back" class="header-btn hidden" aria-label="Retour">←</button>
+            <div class="header-title">
+                <img src="icons/usp.jpg" alt="Logo" class="header-logo">
+                <h1 id="page-title">Foot Golf</h1>
+            </div>
+            <div class="header-spacer"></div>
+        </header>
+
+        <!-- Main content - screens will be injected here -->
+        <main id="main-content">
+            <!-- Home Screen -->
+            <section id="screen-home" class="screen active">
+                <div class="home-buttons">
+                    <button id="btn-resume-game" class="btn btn-primary btn-large hidden">
+                        ▶ Reprendre la partie
+                    </button>
+                    <button id="btn-new-game" class="btn btn-primary btn-large">
+                        🏌️ Nouvelle partie
+                    </button>
+                    <button id="btn-courses" class="btn btn-secondary btn-large">
+                        ⛳ Gérer les parcours
+                    </button>
+                    <button id="btn-history" class="btn btn-secondary btn-large">
+                        📋 Historique
+                    </button>
+                    <button id="btn-players" class="btn btn-secondary btn-large">
+                        👥 Stats joueurs
+                    </button>
+                    <button id="btn-settings" class="btn btn-secondary btn-large">
+                        ⚙️ Paramètres
+                    </button>
+                </div>
+            </section>
+
+            <!-- Courses List Screen -->
+            <section id="screen-courses" class="screen">
+                <div id="courses-list" class="list-container"></div>
+                <button id="btn-add-course" class="btn btn-primary btn-floating">+</button>
+            </section>
+
+            <!-- Course Edit Screen -->
+            <section id="screen-course-edit" class="screen">
+                <form id="form-course" class="form-container">
+                    <div class="form-group">
+                        <label for="course-name">Nom du parcours</label>
+                        <input type="text" id="course-name" required placeholder="Ex: Parcours du Lac">
+                    </div>
+                    <div class="form-group">
+                        <label>Trous</label>
+                        <div id="holes-container" class="holes-list"></div>
+                        <button type="button" id="btn-add-hole" class="btn btn-secondary btn-small">+ Ajouter un trou</button>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" id="btn-delete-course" class="btn btn-danger hidden">Supprimer</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- New Game Screen -->
+            <section id="screen-new-game" class="screen">
+                <form id="form-new-game" class="form-container">
+                    <div class="form-group">
+                        <label for="select-course">Parcours</label>
+                        <select id="select-course" required>
+                            <option value="">-- Choisir un parcours --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Joueurs</label>
+                        <div id="players-container" class="players-input-list"></div>
+                        <button type="button" id="btn-add-player" class="btn btn-secondary btn-small">+ Ajouter un joueur</button>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large">Commencer la partie</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Game Screen -->
+            <section id="screen-game" class="screen">
+                <div id="game-container">
+                    <div id="game-current-info" class="game-info"></div>
+                    <div id="scorecard-container">
+                        <table id="scorecard">
+                            <thead id="scorecard-header"></thead>
+                            <tbody id="scorecard-body"></tbody>
+                            <tfoot id="scorecard-footer"></tfoot>
+                        </table>
+                    </div>
+                    <div id="current-hole-info" class="current-hole-panel">
+                        <h3>Trou <span id="current-hole-number">1</span> - Par <span id="current-hole-par">3</span></h3>
+                        <div id="score-inputs" class="score-inputs-container"></div>
+                        <div class="hole-navigation">
+                            <button id="btn-prev-hole" class="btn btn-secondary">← Précédent</button>
+                            <button id="btn-next-hole" class="btn btn-secondary">Suivant →</button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button id="btn-finish-game" class="btn btn-primary">Terminer la partie</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Screen -->
+            <section id="screen-history" class="screen">
+                <div id="history-list" class="list-container"></div>
+            </section>
+
+            <!-- Game Detail Screen (for viewing finished games) -->
+            <section id="screen-game-detail" class="screen">
+                <div id="game-detail-container">
+                    <div id="game-detail-info" class="game-info"></div>
+                    <div id="game-detail-scorecard-container">
+                        <table id="game-detail-scorecard">
+                            <thead id="game-detail-header"></thead>
+                            <tbody id="game-detail-body"></tbody>
+                            <tfoot id="game-detail-footer"></tfoot>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Player Stats Screen -->
+            <section id="screen-players" class="screen">
+                <div id="players-list" class="list-container"></div>
+            </section>
+
+            <!-- Player Detail Screen -->
+            <section id="screen-player-detail" class="screen">
+                <div id="player-detail-container">
+                    <h2 id="player-detail-name"></h2>
+                    <div id="player-stats-summary" class="stats-summary"></div>
+                    <div id="player-games-list" class="list-container"></div>
+                </div>
+            </section>
+
+            <!-- Settings Screen -->
+            <section id="screen-settings" class="screen">
+                <div class="form-container">
+                    <h2>Sauvegarde des données</h2>
+                    <p class="settings-info">Exportez vos données pour les sauvegarder ou les transférer sur un autre appareil.</p>
+                    
+                    <div class="form-actions">
+                        <button id="btn-export" class="btn btn-primary btn-large">📤 Exporter les données</button>
+                        <button id="btn-import" class="btn btn-secondary btn-large">📥 Importer des données</button>
+                        <input type="file" id="import-file" accept=".json" class="hidden">
+                    </div>
+
+                    <div class="settings-warning mt-16">
+                        <strong>⚠️ Attention</strong><br>
+                        L'import remplacera toutes les données actuelles.
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+    </script>
+</body>
+</html>
