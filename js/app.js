@@ -75,8 +75,6 @@ const App = (function() {
             'game': 'Partie en cours',
             'history': 'Historique',
             'game-detail': 'Détail partie',
-            'players': 'Joueurs',
-            'player-detail': 'Stats joueur',
             'records': 'Records',
             'settings': 'Paramètres'
         };
@@ -100,7 +98,6 @@ const App = (function() {
         document.getElementById('btn-new-game').addEventListener('click', () => showNewGameScreen());
         document.getElementById('btn-courses').addEventListener('click', () => showCoursesScreen());
         document.getElementById('btn-history').addEventListener('click', () => showHistoryScreen());
-        document.getElementById('btn-players').addEventListener('click', () => showPlayersScreen());
         document.getElementById('btn-records').addEventListener('click', () => showRecordsScreen());
         document.getElementById('btn-settings').addEventListener('click', () => showScreen('settings'));
 
@@ -730,148 +727,6 @@ const App = (function() {
         }
     }
 
-    // ==================== PLAYERS ====================
-    async function showPlayersScreen() {
-        const players = await Storage.Games.getAllPlayers();
-        const $list = document.getElementById('players-list');
-
-        if (players.length === 0) {
-            $list.innerHTML = '<div class="list-empty">Aucun joueur enregistré.</div>';
-        } else {
-            // Get stats for each player
-            const playerStats = await Promise.all(players.map(async (name) => {
-                const games = await Storage.Games.getByPlayer(name);
-                
-                let bestScore = null;
-                const wins = games.filter(g => {
-                    const totals = g.players.map(p => ({
-                        name: p,
-                        total: g.scores[p].reduce((sum, s) => sum + (s ?? 0), 0)
-                    }));
-                    totals.sort((a, b) => a.total - b.total);
-                    
-                    // Track best score
-                    const playerTotal = g.scores[name].reduce((sum, s) => sum + (s ?? 0), 0);
-                    if (bestScore === null || playerTotal < bestScore) {
-                        bestScore = playerTotal;
-                    }
-                    
-                    return totals[0].name === name;
-                }).length;
-                
-                return { name, gamesPlayed: games.length, wins, bestScore };
-            }));
-
-            $list.innerHTML = playerStats.map(player => `
-                <div class="list-item" data-name="${escapeHtml(player.name)}">
-                    <div class="list-item-title">${escapeHtml(player.name)}</div>
-                    <div class="list-item-subtitle">
-                        ${player.gamesPlayed} parties — ${player.wins} victoire${player.wins > 1 ? 's' : ''}${player.bestScore !== null ? ` — Meilleur: ${formatScore(player.bestScore)}` : ''}
-                    </div>
-                </div>
-            `).join('');
-
-            $list.querySelectorAll('.list-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    showPlayerDetailScreen(item.dataset.name);
-                });
-            });
-        }
-
-        showScreen('players');
-    }
-
-    async function showPlayerDetailScreen(playerName) {
-        const games = await Storage.Games.getByPlayer(playerName);
-        
-        const $name = document.getElementById('player-detail-name');
-        const $stats = document.getElementById('player-stats-summary');
-        const $gamesList = document.getElementById('player-games-list');
-
-        $name.textContent = playerName;
-
-        // Calculate stats
-        let totalScore = 0;
-        let wins = 0;
-        let bestScore = null;
-        let bestScoreDates = [];
-
-        games.forEach(game => {
-            const playerTotal = game.scores[playerName].reduce((sum, s) => sum + (s ?? 0), 0);
-            totalScore += playerTotal;
-
-            // Track best score
-            if (bestScore === null || playerTotal < bestScore) {
-                bestScore = playerTotal;
-                bestScoreDates = [game.date];
-            } else if (playerTotal === bestScore) {
-                bestScoreDates.push(game.date);
-            }
-
-            const totals = game.players.map(p => ({
-                name: p,
-                total: game.scores[p].reduce((sum, s) => sum + (s ?? 0), 0)
-            }));
-            totals.sort((a, b) => a.total - b.total);
-            
-            if (totals[0].name === playerName) wins++;
-        });
-
-        const avgScore = games.length > 0 ? (totalScore / games.length).toFixed(1) : 0;
-
-        // Format best score dates
-        const bestScoreDatesFormatted = bestScoreDates.map(d => 
-            new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
-        ).join(', ');
-
-        $stats.innerHTML = `
-            <p><span>Parties jouées</span><strong>${games.length}</strong></p>
-            <p><span>Victoires</span><strong>${wins}</strong></p>
-            <p><span>Score moyen</span><strong>${formatScore(parseFloat(avgScore))}</strong></p>
-            ${bestScore !== null ? `<p><span>Meilleur score</span><strong>${formatScore(bestScore)}</strong></p>
-            <p><span>Réalisé le</span><strong>${bestScoreDatesFormatted}</strong></p>` : ''}
-        `;
-
-        // Games list
-        if (games.length === 0) {
-            $gamesList.innerHTML = '<div class="list-empty">Aucune partie.</div>';
-        } else {
-            $gamesList.innerHTML = games.map(game => {
-                const date = new Date(game.date).toLocaleDateString('fr-FR', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric'
-                });
-                const total = game.scores[playerName].reduce((sum, s) => sum + (s ?? 0), 0);
-                
-                // Check if won
-                const totals = game.players.map(p => ({
-                    name: p,
-                    total: game.scores[p].reduce((sum, s) => sum + (s ?? 0), 0)
-                }));
-                totals.sort((a, b) => a.total - b.total);
-                const isWinner = totals[0].name === playerName;
-
-                return `
-                    <div class="list-item" data-id="${game.id}">
-                        <div class="list-item-title">${isWinner ? '🏆 ' : ''}${escapeHtml(game.courseName)}</div>
-                        <div class="list-item-subtitle">
-                            ${date} — Score: <span class="${getScoreClass(total)}">${formatScore(total)}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            $gamesList.querySelectorAll('.list-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    showGameDetailScreen(item.dataset.id);
-                });
-            });
-        }
-
-        showScreen('player-detail');
-    }
-
     // ==================== RECORDS ====================
     async function showRecordsScreen() {
         const courses = await Storage.Courses.getAll();
@@ -898,8 +753,10 @@ const App = (function() {
 
     async function showRecordsForCourse(courseId, playerFilter = '') {
         const $container = document.getElementById('records-container');
-        const $byHole = document.getElementById('records-by-hole');
+        const $global = document.getElementById('records-global');
         const $ranking = document.getElementById('records-ranking');
+        const $byHole = document.getElementById('records-by-hole');
+        const $gamesList = document.getElementById('records-games-list');
 
         if (!courseId) {
             $container.classList.add('hidden');
@@ -911,8 +768,10 @@ const App = (function() {
         const games = allGames.filter(g => g.courseId === courseId);
 
         if (games.length === 0) {
-            $ranking.innerHTML = '<div class="list-empty">Aucune partie sur ce parcours.</div>';
+            $global.innerHTML = '<p>Aucune partie sur ce parcours.</p>';
+            $ranking.innerHTML = '';
             $byHole.innerHTML = '';
+            $gamesList.innerHTML = '';
             $container.classList.remove('hidden');
             return;
         }
@@ -923,10 +782,39 @@ const App = (function() {
             : games;
 
         if (filteredGames.length === 0) {
-            $ranking.innerHTML = '<div class="list-empty">Aucune partie pour ce joueur sur ce parcours.</div>';
+            $global.innerHTML = '<p>Aucune partie pour ce joueur sur ce parcours.</p>';
+            $ranking.innerHTML = '';
             $byHole.innerHTML = '';
+            $gamesList.innerHTML = '';
             $container.classList.remove('hidden');
             return;
+        }
+
+        // Section Global
+        let nbGames = filteredGames.length;
+        let nbWins = 0;
+        
+        filteredGames.forEach(game => {
+            const totals = game.players.map(p => ({
+                name: p,
+                total: game.scores[p].reduce((sum, s) => sum + (s ?? 0), 0)
+            }));
+            totals.sort((a, b) => a.total - b.total);
+            
+            if (playerFilter) {
+                if (totals[0].name === playerFilter) nbWins++;
+            }
+        });
+
+        if (playerFilter) {
+            $global.innerHTML = `
+                <p><span>Parties jouées</span><strong>${nbGames}</strong></p>
+                <p><span>Victoires</span><strong>${nbWins}</strong></p>
+            `;
+        } else {
+            $global.innerHTML = `
+                <p><span>Parties jouées</span><strong>${nbGames}</strong></p>
+            `;
         }
 
         // Classement meilleurs scores totaux
@@ -939,7 +827,8 @@ const App = (function() {
                     allScores.push({
                         player,
                         total,
-                        date: game.date
+                        date: game.date,
+                        gameId: game.id
                     });
                 }
             });
@@ -976,12 +865,13 @@ const App = (function() {
             `;
         }).join('');
 
-        // Records par trou
+        // Records par trou (avec moyenne si joueur filtré)
         const holeRecords = [];
         for (let i = 0; i < course.holes.length; i++) {
             const hole = course.holes[i];
-            // Map: player -> { bestScore, latestDate }
             const playerBestByHole = new Map();
+            let sumScores = 0;
+            let countScores = 0;
 
             filteredGames.forEach(game => {
                 const playersToInclude = playerFilter ? [playerFilter] : game.players;
@@ -989,19 +879,20 @@ const App = (function() {
                     if (game.scores[player]) {
                         const score = game.scores[player][i];
                         if (score !== null) {
+                            // Pour la moyenne (uniquement si joueur filtré)
+                            if (playerFilter) {
+                                sumScores += score;
+                                countScores++;
+                            }
+                            
                             const existing = playerBestByHole.get(player);
-                            if (!existing || score < existing.bestScore || 
-                                (score === existing.bestScore && new Date(game.date) > new Date(existing.latestDate))) {
-                                playerBestByHole.set(player, { 
-                                    bestScore: existing && score > existing.bestScore ? existing.bestScore : score,
-                                    latestDate: (!existing || score <= existing.bestScore) ? game.date : existing.latestDate
-                                });
-                                // Correction: garder le meilleur score et mettre à jour la date si même score
-                                if (existing && score === existing.bestScore) {
-                                    playerBestByHole.set(player, { bestScore: score, latestDate: game.date });
-                                } else if (!existing || score < existing.bestScore) {
+                            if (existing && score === existing.bestScore) {
+                                // Même score, mettre à jour avec la date la plus récente
+                                if (new Date(game.date) > new Date(existing.latestDate)) {
                                     playerBestByHole.set(player, { bestScore: score, latestDate: game.date });
                                 }
+                            } else if (!existing || score < existing.bestScore) {
+                                playerBestByHole.set(player, { bestScore: score, latestDate: game.date });
                             }
                         }
                     }
@@ -1020,11 +911,14 @@ const App = (function() {
                 }
             });
 
+            const avgScore = countScores > 0 ? (sumScores / countScores) : null;
+
             holeRecords.push({
                 hole: hole.number,
                 par: hole.par,
                 bestScore,
-                bestPlayers
+                bestPlayers,
+                avgScore
             });
         }
 
@@ -1041,9 +935,13 @@ const App = (function() {
                 `;
             }
             const playersStr = record.bestPlayers.map(p => {
-                const date = new Date(p.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+                const date = new Date(p.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
                 return `${escapeHtml(p.player)} (${date})`;
             }).join(', ');
+
+            const avgDisplay = playerFilter && record.avgScore !== null 
+                ? ` | Moy: ${record.avgScore >= 0 ? '+' : ''}${record.avgScore.toFixed(1)}`
+                : '';
 
             return `
                 <div class="record-item">
@@ -1051,10 +949,57 @@ const App = (function() {
                         <span class="record-hole">Trou ${record.hole} (Par ${record.par})</span>
                         <span class="record-date">${playersStr}</span>
                     </div>
-                    <span class="record-score ${getScoreClass(record.bestScore)}">${formatScore(record.bestScore)}</span>
+                    <span class="record-score">Score: <span class="${getScoreClass(record.bestScore)}">${formatScore(record.bestScore)}</span>${avgDisplay}</span>
                 </div>
             `;
         }).join('');
+
+        // Historique des parties
+        const gamesToShow = playerFilter 
+            ? filteredGames.map(game => ({
+                game,
+                total: game.scores[playerFilter].reduce((sum, s) => sum + (s ?? 0), 0)
+            }))
+            : filteredGames.map(game => {
+                const totals = game.players.map(p => ({
+                    name: p,
+                    total: game.scores[p].reduce((sum, s) => sum + (s ?? 0), 0)
+                }));
+                totals.sort((a, b) => a.total - b.total);
+                return { game, winner: totals[0] };
+            });
+
+        gamesToShow.sort((a, b) => new Date(b.game.date) - new Date(a.game.date));
+
+        $gamesList.innerHTML = gamesToShow.map(entry => {
+            const date = new Date(entry.game.date).toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+
+            if (playerFilter) {
+                return `
+                    <div class="list-item" data-id="${entry.game.id}">
+                        <div class="list-item-title">${date} — Score: <span class="${getScoreClass(entry.total)}">${formatScore(entry.total)}</span></div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="list-item" data-id="${entry.game.id}">
+                        <div class="list-item-title">${date} — 🏆 ${escapeHtml(entry.winner.name)} (${formatScore(entry.winner.total)})</div>
+                        <div class="list-item-players">${entry.game.players.map(escapeHtml).join(', ')}</div>
+                    </div>
+                `;
+            }
+        }).join('');
+
+        // Click sur une partie pour voir le détail
+        $gamesList.querySelectorAll('.list-item').forEach(item => {
+            item.addEventListener('click', () => {
+                showGameDetailScreen(item.dataset.id);
+            });
+        });
 
         $container.classList.remove('hidden');
     }

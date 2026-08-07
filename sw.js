@@ -1,5 +1,5 @@
-const CACHE_VERSION = '2026-08-07-17h09';
-const CACHE_VERSION = '2026-08-07-17h09';
+const CACHE_VERSION = '2026-08-07-17h59';
+const CACHE_VERSION = '2026-08-07-17h59';
 const CACHE_NAME = 'foot-golf-' + CACHE_VERSION;
 const ASSETS = [
     '/foot-golf/',

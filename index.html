@@ -41,9 +41,6 @@
                     <button id="btn-history" class="btn btn-secondary btn-large">
                         📋 Historique
                     </button>
-                    <button id="btn-players" class="btn btn-secondary btn-large">
-                        👥 Stats joueurs
-                    </button>
                     <button id="btn-records" class="btn btn-secondary btn-large">
                         🏅 Records
                     </button>
@@ -145,20 +142,6 @@
                 </div>
             </section>
 
-            <!-- Player Stats Screen -->
-            <section id="screen-players" class="screen">
-                <div id="players-list" class="list-container"></div>
-            </section>
-
-            <!-- Player Detail Screen -->
-            <section id="screen-player-detail" class="screen">
-                <div id="player-detail-container">
-                    <h2 id="player-detail-name"></h2>
-                    <div id="player-stats-summary" class="stats-summary"></div>
-                    <div id="player-games-list" class="list-container"></div>
-                </div>
-            </section>
-
             <!-- Records Screen (course selection) -->
             <section id="screen-records" class="screen">
                 <div class="form-container">
@@ -176,11 +159,17 @@
                     </div>
                 </div>
                 <div id="records-container" class="hidden">
+                    <h3 class="records-section-title">📊 Global</h3>
+                    <div id="records-global" class="stats-summary"></div>
+                    
                     <h3 class="records-section-title">🏆 Classement meilleurs scores</h3>
                     <div id="records-ranking" class="records-list"></div>
                     
                     <h3 class="records-section-title">🏅 Records par trou</h3>
                     <div id="records-by-hole" class="records-list"></div>
+                    
+                    <h3 class="records-section-title">📋 Historique des parties</h3>
+                    <div id="records-games-list" class="list-container"></div>
                 </div>
             </section>
 
@@ -203,7 +192,7 @@
                 </div>
             </section>
         </main>
-        <div id="app-version">v2026-08-07-17509</div>
+        <div id="app-version">v2026-08-07-17559</div>
     </div>
 
     <script src="js/storage.js"></script>
