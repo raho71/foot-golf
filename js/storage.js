@@ -72,7 +72,8 @@ const Storage = (function() {
             const request = store.put(item);
 
             request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve(item);
+            transaction.onerror = () => reject(transaction.error);
+            transaction.oncomplete = () => resolve(item);
         });
     }
 
@@ -83,7 +84,8 @@ const Storage = (function() {
             const request = store.delete(id);
 
             request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve();
+            transaction.onerror = () => reject(transaction.error);
+            transaction.oncomplete = () => resolve();
         });
     }
 
